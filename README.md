@@ -1,0 +1,2 @@
+# impartialgames
+Impartial Game Engine
