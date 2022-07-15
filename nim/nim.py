@@ -83,3 +83,7 @@ if __name__ == "__main__":
     print(nim([1, 1, 0], MISERE))
     print(nim([1, 1, 1], MISERE))
 
+    print("\n")
+    print(nim([1, 0, 0], NORMAL))
+    print(nim([1, 1, 0], NORMAL))
+    print(nim([1, 1, 1], NORMAL))
