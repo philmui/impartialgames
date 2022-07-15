@@ -1,8 +1,9 @@
-Impartial Game experiments
+Impartial Game Experiments
+==========================
 
 If you are going to setup a new experiment, please use this convention when creating a toplevel folder's name:
 
-<type of impartial game>-<your ID>
+{type of impartial game}-{your ID}
 
 Example: "nim-luigian" or "nim-varun"
 
