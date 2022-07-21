@@ -177,15 +177,20 @@ class QAgent: # q - learning agent
         a = state[0]
         b = state[1]
         c = state[2]
-        ret = [-1, -1]
+        ret = [[-1, -1]]
         max_val = -1
         for i in range(0, 3):  # otherwise, it will choose the action with the highest value, which exploits the existing strategy
             for j in range(0, len(self.values[a][b][c][i])):
                 if max_val < self.values[a][b][c][i][j]:
                     max_val = self.values[a][b][c][i][j]
-                    ret = [i, j]
+                    ret = [[i, j]]
+                else max_val == self.values[a][b][c][i][j]:
+                    ret.append([i, j])
         #print("exploit {}".format(ret))
-        return ret
+
+
+        # randomly choose an action in ret
+        return ret[random.randint(0, len(ret) - 1)]
 
     def updateValues(self, state, action, new_state, game_over, reward): # updates the q-table (learning happens here)
         a = state[0]
