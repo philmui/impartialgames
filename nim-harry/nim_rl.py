@@ -10,8 +10,7 @@ def default():
     return 0.0
 
 class QAgent:
-    def __init__(self, exp_rate, discount_rate, learning_rate, epsilon, nim_env):
-        self.exp_rate = exp_rate
+    def __init__(self, discount_rate, learning_rate, epsilon, nim_env):
         self.discount_rate = discount_rate
         self.learning_rate = learning_rate
         self.epsilon = epsilon

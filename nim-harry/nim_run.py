@@ -5,7 +5,7 @@ from nim_rl import QAgent
 
 
 def update():
-    for episode in range(10000):
+    for episode in range(50000):
         if episode % 1000 == 0:
             print('Episode ' + str(episode))
 
@@ -53,7 +53,7 @@ def play():
 
 if __name__ == '__main__':
     env = NimEnv(n=3, stones_per_pile=9, max_remove=5)
-    RL = QAgent(exp_rate=0.1, discount_rate=0.9, learning_rate=0.1, epsilon=0.1, nim_env=env)
+    RL = QAgent(discount_rate=0.99, learning_rate=0.1, epsilon=0.1, nim_env=env)
 
     update()
 
