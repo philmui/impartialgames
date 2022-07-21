@@ -1,38 +1,25 @@
-from nim_env import Nim
-from nim_rl import QLearningTable
+from nim_env import NimEnv
+from nim_rl import QAgent
 
 
 def update():
-    for episode in range(100000):
-        if episode % 10000 == 0:
-            print('Episode: ' + str(episode))
-        observation = env.reset()
+    for episode in range(100):
+        if episode % 1000 == 0:
+            print('Episode ' + str(episode))
 
-        while True:
-            env.render()
+        state = env.reset()
 
-            action = RL.choose_action(str(observation))
-
-            observation_, reward, done = env.step(action)
-
-            RL.learn(str(observation), action, reward, str(observation_))
-
-            observation = observation_
-
-            if done:
-                break
-
-    print('game over')
+        while not env.game_over:
+            action = RL.get_action(state)
+            next_state, reward, game_over = env.step(action)
+            RL.update_q_table(state, action, reward, next_state)
+            state = next_state
 
 
 if __name__ == '__main__':
-    env = Nim()
-    RL = QLearningTable()
+    env = NimEnv(n=1, stones_per_pile=13)
+    RL = QAgent(exp_rate=0.1, discount_rate=0.9, learning_rate=0.1, epsilon=0.1, nim_env=env)
 
     update()
 
-    print(RL.q_table)
-    compression_opts = dict(method='zip',
-                            archive_name='out.csv')
-    RL.q_table.to_csv('out.zip', index=False,
-                      compression=compression_opts)
+    print(RL.get_q_table())
