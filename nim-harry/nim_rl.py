@@ -40,13 +40,21 @@ class QAgent:
         # print(self.q_table[str(next_state)][str(action)])
         # print(np.max(self.q_table[str(next_state)]))
 
+        # print('Update')
+        # print(state)
+        # print(action)
         # print(reward)
-        if np.sum(next_state) == 0:
-            self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * self.q_table[str(state)][str(action)] + self.learning_rate * reward
-        else:
-            self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * self.q_table[str(state)][str(action)] + self.learning_rate * (reward + self.discount_rate * max(self.q_table[str(next_state)].values()))
+        # print(next_state)
+        # print()
 
-        print(self.q_table[str(state)][str(action)])
+        q_predict = self.q_table[str(state)][str(action)]
+        if np.sum(next_state) == 0:
+            q_target = reward
+        else:
+            q_target = reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
+
+        self.q_table[str(state)][str(action)] += self.learning_rate * (q_target - q_predict)
+        # print(self.q_table[str(state)][str(action)])
 
     def get_q_table(self):
         return self.q_table
