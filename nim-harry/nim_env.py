@@ -29,15 +29,27 @@ class NimEnv:
     def get_state(self):
         return self.state.copy()
 
-    def step(self, action):
+    def step(self, action, opts=[1, 0, 0]):
         next_state = self.update(action)
         if np.sum(next_state) == 0:
             return next_state, 1, True
 
-        optimal_action = self.get_optimal_action(next_state)
-        # print(self.state)
-        # print('Optimal ' + str(len(optimal_action)))
-        next_state = self.update(optimal_action[np.random.randint(0, len(optimal_action))])
+        first_limit = opts[0]
+        second_limit = opts[0] + opts[1]
+
+        rand = np.random.rand()
+
+        if rand < first_limit:
+            actions = self.get_optimal_action(next_state)
+            action = actions[np.random.randint(len(actions))]
+        elif rand < second_limit:
+            actions = self.get_possible_actions(next_state)
+            action = actions[np.random.randint(len(actions))]
+        else:
+            actions = self.get_mal_random_action(next_state)
+            action = actions[np.random.randint(len(actions))]
+
+        next_state = self.update(action)
 
         if np.sum(next_state) == 0:
             return next_state, -1, True
@@ -58,3 +70,15 @@ class NimEnv:
         xor = min(xor, max(state))
 
         return [(i, xor) for i in range(self.n) if state[i] >= xor]
+
+    def get_mal_random_action(self, state):
+        opt_actions = self.get_optimal_action(state)
+
+        poss_actions = self.get_possible_actions(state)
+
+        ret = []
+        for poss_action in poss_actions:
+            if poss_action not in opt_actions:
+                ret.append(poss_action)
+
+        return ret

@@ -35,17 +35,6 @@ class QAgent:
             return max_action[np.random.randint(0, len(max_action))]
 
     def update_q_table(self, state, action, reward, next_state):
-        # print(type(self.q_table[str(state)][str(action)]) is float)
-        # print(self.q_table[str(next_state)][str(action)])
-        # print(np.max(self.q_table[str(next_state)]))
-
-        # print('Update')
-        # print(state)
-        # print(action)
-        # print(reward)
-        # print(next_state)
-        # print()
-
         q_predict = self.q_table[str(state)][str(action)]
         if np.sum(next_state) == 0:
             q_target = reward
