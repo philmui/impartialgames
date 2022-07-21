@@ -18,9 +18,9 @@ class QAgent:
         self.nim_env = nim_env
         self.q_table = defaultdict(partial(defaultdict, default))
 
-    def get_action(self, state):
+    def get_action(self, state, play=False):
         actions = self.nim_env.get_possible_actions(state)
-        if np.random.rand() < self.epsilon:
+        if np.random.rand() < self.epsilon and not play:
             return actions[np.random.randint(0, len(actions))]
         else:
             max_val = -np.inf
