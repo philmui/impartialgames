@@ -46,3 +46,6 @@ class QAgent:
 
     def get_q_table(self):
         return self.q_table
+
+    def set_epsilon(self, epsilon):
+        self.epsilon = epsilon

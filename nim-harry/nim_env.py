@@ -11,6 +11,8 @@ class NimEnv:
         self.stones = stones_per_pile
         self.max_remove = max_remove
         self.state = [stones_per_pile] * n
+        self.error = []
+        self.win = []
         self.game_over = False
 
     def reset(self):
@@ -30,8 +32,16 @@ class NimEnv:
         return self.state.copy()
 
     def step(self, action, opts=[1, 0, 0]):
+        opt_choice = self.get_optimal_action(self.state)
         next_state = self.update(action)
+
+        if action in opt_choice:
+            self.error.append(1)
+        else:
+            self.error.append(0)
+
         if np.sum(next_state) == 0:
+            self.win.append(1)
             return next_state, 1, True
 
         first_limit = opts[0]
@@ -52,6 +62,7 @@ class NimEnv:
         next_state = self.update(action)
 
         if np.sum(next_state) == 0:
+            self.win.append(0)
             return next_state, -1, True
 
         return next_state, 0, False
@@ -81,4 +92,16 @@ class NimEnv:
             if poss_action not in opt_actions:
                 ret.append(poss_action)
 
-        return ret
+        return ret if len(ret) != 0 else poss_actions
+
+    def reset_error(self):
+        self.error = []
+
+    def get_error(self):
+        return self.error.copy()
+
+    def reset_win(self):
+        self.win = []
+
+    def get_win(self):
+        return self.win.copy()

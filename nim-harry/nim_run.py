@@ -1,28 +1,44 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 from nim_env import NimEnv
 from nim_rl import QAgent
 
 
 def update():
+    x_error = []
+    y_error = []
+    x_win = []
+    y_win = []
     for episode in range(10000):
-        if episode % 1000 == 0:
+        if episode % 100 == 0:
+            x_error.append(episode)
+            y_error.append(np.mean(env.get_error()))
+
+            x_win.append(episode)
+            y_win.append(np.mean(env.get_win()))
+            env.reset_win()
+            env.reset_error()
+            RL.set_epsilon(RL.epsilon * 0.99)
             print('Episode ' + str(episode))
 
         env.reset()
 
         while True:
-            # print(state)
             state = env.get_state()
             action = RL.get_action(state)
-            # print(action)
-            next_state, reward, game_over = env.step(action, opts=[1, 0, 0])
-            # print(next_state)
-            # print()
+
+            next_state, reward, game_over = env.step(action, opts=[0, 1, 0])
+
             RL.update_q_table(state, action, reward, next_state)
 
             if game_over:
                 break
+
+    plt.plot(x_error, y_error, label='Accuracy Rate', color='red')
+    plt.plot(x_win, y_win, label='Win Rate', color='blue')
+    plt.legend()
+    plt.title('Random-agent Accuracy Rate and Win Rate')
+    plt.show()
 
 
 def play():
