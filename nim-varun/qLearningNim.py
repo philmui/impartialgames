@@ -20,7 +20,16 @@ class Nim:
         self.max_remove = max_remove  # max number of stones that can be removed from a stone
         self.game_over = False
 
-        self.values = []
+        self.values = [] # q_table
+
+        """
+        initializing q_table, 5 dimensions: [a, b, c, a_act, b_act]
+        a represents the number of stones in the first pile
+        b represents the number of stones in the second pile
+        c represents the number of stones in the third pile
+        a_act represents the pile from which the stone is removed
+        b_act represents the number of stones removed from a_act pile
+        """
         for i in range(0, n + 1):
             arrj = []
             for j in range(0, n + 1):
@@ -51,6 +60,7 @@ class Nim:
             self.game_over = True
             return
 
+        # updating the state
         self.state[action[0]] -= action[1]
         #print("action = {0}: {1}".format(action, self.state))
 
@@ -70,10 +80,13 @@ class Nim:
         b = state[1]
         c = state[2]
 
+        # getting possible actions, basically the number of stones each pile has because you can't take more than that
         a_acts = len(self.values[a][b][c][0])
         b_acts = len(self.values[a][b][c][1])
         c_acts = len(self.values[a][b][c][2])
 
+
+        # putting every possible action in the list
         for i in range(0, a_acts):
             poss_actions.append([0, i + 1])
         for i in range(0, b_acts):
@@ -106,6 +119,7 @@ class Nim:
         return int(z, 2)
 
     def getOptMoves(self, state, poss_actions): # returns the optimal moves from a given state
+        # Mathematical way of finding the optimal moves, not q_agent learning
         a = state[0] % (self.max_remove + 1)
         b = state[1] % (self.max_remove + 1)
         c = state[2] % (self.max_remove + 1)
@@ -149,7 +163,7 @@ class QAgent: # q - learning agent
     def getAction(self, state): # chooses an action from the given state based on exploration vs exploitation
         #print("q says: {}".format(state))
 
-        if random.random() < self.exp_rate:  # exploration
+        if random.random() < self.exp_rate:  # exp_rate is the probability of it exploring and choosing a random action
             acts = self.game.getPossibleMoves(state, self.values)
             i = random.randint(0, len(acts) - 1)
             ret = acts[i]
@@ -165,7 +179,7 @@ class QAgent: # q - learning agent
         c = state[2]
         ret = [-1, -1]
         max_val = -1
-        for i in range(0, 3):  # exploitation
+        for i in range(0, 3):  # otherwise, it will choose the action with the highest value, which exploits the existing strategy
             for j in range(0, len(self.values[a][b][c][i])):
                 if max_val < self.values[a][b][c][i][j]:
                     max_val = self.values[a][b][c][i][j]
@@ -190,6 +204,10 @@ class QAgent: # q - learning agent
         #print(x, end = ' ')
         #print(y, end = ' ')
         #print(z)
+
+        # Bellman equation for updating the q-table: q(s, a) = q(s, a) + alpha * (reward + gamma * max(q(s', a')) - q(s, a))
+        # gamma is the discount rate, alpha is the learning rate, and reward is the reward received from the action taken
+        # the max(q(s', a')) is the max value of the q-table predicted by the q-agent for the next possible move from the new state
         if (game_over):
             self.values[a][b][c][d][e] = (1 - self.learn_rate) * self.values[a][b][c][d][e] + self.learn_rate * reward
         else:
