@@ -27,7 +27,7 @@ def update():
             state = env.get_state()
             action = RL.get_action(state)
 
-            next_state, reward, game_over = env.step(action, opts=[0, 1, 0])
+            next_state, reward, game_over = env.step(action, opts=[0.2, 0, 0.8])
 
             RL.update_q_table(state, action, reward, next_state)
 
@@ -37,7 +37,7 @@ def update():
     plt.plot(x_error, y_error, label='Accuracy Rate', color='red')
     plt.plot(x_win, y_win, label='Win Rate', color='blue')
     plt.legend()
-    plt.title('Random-agent Accuracy Rate and Win Rate')
+    plt.title('Mix 20/80 agent Accuracy Rate and Win Rate')
     plt.show()
 
 
