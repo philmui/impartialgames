@@ -6,17 +6,17 @@ Nim Enviroment for specified amount of piles.
 
 
 class NimEnv:
-    def __init__(self, n, stones_per_pile, max_remove):
+    def __init__(self, n, stones, max_remove):
         self.n = n
-        self.stones = stones_per_pile
         self.max_remove = max_remove
-        self.state = [stones_per_pile] * n
+        self.stones = stones
+        self.state = stones.copy()
         self.error = []
         self.win = []
         self.game_over = False
 
     def reset(self):
-        self.state = [self.stones] * self.n
+        self.state = self.stones.copy()
         self.game_over = False
         return self.state
 
@@ -31,13 +31,20 @@ class NimEnv:
     def get_state(self):
         return self.state.copy()
 
-    def step(self, action, opts=[1, 0, 0]):
+    def step(self, action, opts=[1, 0, 0], print_=False):
+        state = self.get_state()
         opt_choice = self.get_optimal_action(self.state)
         next_state = self.update(action)
 
         if action in opt_choice:
             self.error.append(1)
         else:
+            if print_:
+                print(state)
+                print(action)
+                print(opt_choice)
+                print(action in opt_choice)
+                print()
             self.error.append(0)
 
         if np.sum(next_state) == 0:
@@ -50,6 +57,7 @@ class NimEnv:
         rand = np.random.rand()
 
         if rand < first_limit:
+            # print(next_state)
             actions = self.get_optimal_action(next_state)
             action = actions[np.random.randint(len(actions))]
         elif rand < second_limit:
@@ -68,9 +76,10 @@ class NimEnv:
         return next_state, 0, False
 
     def get_possible_actions(self, state):
-        return [(i, j) for i in range(self.n) for j in range(1, min(state[i] + 1, self.max_remove + 1))]
+        return [[i, j] for i in range(self.n) for j in range(1, min(state[i] + 1, self.max_remove + 1))]
 
     def get_optimal_action(self, state):
+        # print(state)
         xor = 0
         for i in range(self.n):
             xor ^= state[i] % (self.max_remove + 1)
@@ -78,9 +87,19 @@ class NimEnv:
         if xor == 0:
             return self.get_possible_actions(state)
 
-        xor = min(xor, max(state))
+        poss_actions = []
 
-        return [(i, xor) for i in range(self.n) if state[i] >= xor]
+        for i in range(self.n):
+            a = state[i] % (self.max_remove + 1)
+            ns = xor ^ a
+            if ns < a:
+                poss_actions.append([i, a - ns])
+
+        return poss_actions
+
+        # xor = min(xor, max(state))
+        #
+        # return [[i, xor] for i in range(self.n) if state[i] >= xor]
 
     def get_mal_random_action(self, state):
         opt_actions = self.get_optimal_action(state)

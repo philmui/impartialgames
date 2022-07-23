@@ -41,8 +41,7 @@ class QAgent:
         else:
             q_target = reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
 
-        self.q_table[str(state)][str(action)] += self.learning_rate * (q_target - q_predict)
-        # print(self.q_table[str(state)][str(action)])
+        self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * q_predict + self.learning_rate * q_target
 
     def get_q_table(self):
         return self.q_table
