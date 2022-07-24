@@ -6,9 +6,10 @@ Nim Enviroment for specified amount of piles.
 
 
 class NimEnv:
-    def __init__(self, n, stones, max_remove):
+    def __init__(self, n, stones, flag=0):
         self.n = n
-        self.max_remove = max_remove
+        self.flag = flag
+        self.max_remove = max(stones)
         self.stones = stones
         self.state = stones.copy()
         self.error = []
@@ -51,16 +52,10 @@ class NimEnv:
             self.win.append(1)
             return next_state, 1, True
 
-        first_limit = opts[0]
-        second_limit = opts[0] + opts[1]
-
-        rand = np.random.rand()
-
-        if rand < first_limit:
-            # print(next_state)
+        if opts[0] == 1:
             actions = self.get_optimal_action(next_state)
             action = actions[np.random.randint(len(actions))]
-        elif rand < second_limit:
+        elif opts[1] == 1:
             actions = self.get_possible_actions(next_state)
             action = actions[np.random.randint(len(actions))]
         else:
@@ -96,10 +91,6 @@ class NimEnv:
                 poss_actions.append([i, a - ns])
 
         return poss_actions
-
-        # xor = min(xor, max(state))
-        #
-        # return [[i, xor] for i in range(self.n) if state[i] >= xor]
 
     def get_mal_random_action(self, state):
         opt_actions = self.get_optimal_action(state)
