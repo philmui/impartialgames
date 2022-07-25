@@ -43,11 +43,11 @@ class Nim:
                     arr2 = []
                     arr3 = []
                     for l in range(0, a):
-                        arr1.append(0) 
+                        arr1.append(0.0) 
                     for l in range(0, b):
-                        arr2.append(0) 
+                        arr2.append(0.0) 
                     for l in range(0, c):
-                        arr3.append(0) 
+                        arr3.append(0.0) 
                     arr.append(arr1)
                     arr.append(arr2)
                     arr.append(arr3)
@@ -209,9 +209,9 @@ class QAgent: # q - learning agent
         # gamma is the discount rate, alpha is the learning rate, and reward is the reward received from the action taken
         # the max(q(s', a')) is the max value of the q-table predicted by the q-agent for the next possible move from the new state
         if (game_over):
-            self.values[a][b][c][d][e] = (1 - self.learn_rate) * self.values[a][b][c][d][e] + self.learn_rate * reward
+            self.values[a][b][c][d][e] = (1.0 - self.learn_rate) * self.values[a][b][c][d][e] + self.learn_rate * reward
         else:
-            self.values[a][b][c][d][e] = (1 - self.learn_rate) * self.values[a][b][c][d][e] + \
+            self.values[a][b][c][d][e] = (1.0 - self.learn_rate) * self.values[a][b][c][d][e] + \
                                          self.learn_rate * (reward + self.disc_rate * max(big(self.values[x][y][z][0]),
                                                                                           big(self.values[x][y][z][1]),
                                                                                           big(self.values[x][y][z][2])))
