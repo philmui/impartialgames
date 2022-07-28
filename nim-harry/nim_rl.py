@@ -56,7 +56,6 @@ class QAgent:
         multipler = 0.2 if flagged else 1
 
         if np.sum(next_state) == 0:
-            self.wins.append(1 if reward > 0 else 0)
             q_target = reward
         else:
             q_target = reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
@@ -79,6 +78,9 @@ class QAgent:
         self.episode += 1
         self.update_accurate()
         self.update_win()
+
+    def add_win(self):
+        self.wins.append(1)
 
     def update_win(self):
         if self.episode % 500 == 0:

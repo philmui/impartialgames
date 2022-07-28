@@ -67,6 +67,11 @@ def QvQ(E, q1, q2):
     q1.update_q_table(state, q1_action, reward_q1, next_state)
     q2.update_q_table(state, q2_action, reward_q2, next_state)
 
+    if reward_q1 == 1:
+        q1.add_win()
+    if reward_q2 == 1:
+        q2.add_win()
+
     q1.add_points()
     q2.add_points()
 
