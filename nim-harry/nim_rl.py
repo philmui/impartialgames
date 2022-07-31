@@ -56,11 +56,15 @@ class QAgent:
         multipler = 0.2 if flagged else 1
 
         if np.sum(next_state) == 0:
+            if reward < 0:
+                self.wins.append(0)
+            else:
+                self.wins.append(1)
             q_target = reward
         else:
             q_target = reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
 
-        self.q_table[str(state)][str(action)] = (1 - multipler * self.learning_rate) * q_predict + multipler * self.learning_rate * q_target
+        self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * q_predict + self.learning_rate * q_target
 
     def get_q_table(self):
         return self.q_table

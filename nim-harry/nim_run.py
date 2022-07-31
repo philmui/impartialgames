@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from nim_env import NimEnv
 from nim_rl import QAgent
 
@@ -8,7 +7,24 @@ def population_train(people, num_pile, rounds=50000):
     for round in range(rounds):
         if round % 1000 == 0:
             print('Round: ', round)
+            if round + 20000 >= rounds:
+                RL1.set_epsilon(0)
+                RL2.set_epsilon(0)
+                RL3.set_epsilon(0)
+
         trained = 0
+
+        rand = np.random.rand()
+        piles = [15, 10, 7]  # np.random.randint(1, 10, num_pile)
+
+        if rand < 0.2:
+            p1 = np.random.randint(0, len(people))
+            q1 = people[p1]
+            E = NimEnv(num_pile, piles)
+            q1.set_env(E)
+            QvQ(E, q1, 'optimal')
+            continue
+
         while trained < len(people) // 2:
             p1 = np.random.randint(0, len(people))
             p2 = np.random.randint(0, len(people))
@@ -21,8 +37,6 @@ def population_train(people, num_pile, rounds=50000):
             """
             initialize piles array to have a length of num_pile and fill it with random numbers between 1 and 10
             """
-
-            piles = np.random.randint(1, 10, num_pile)
 
             E = NimEnv(num_pile, piles)
             q1.set_env(E)
@@ -39,7 +53,10 @@ def population_train(people, num_pile, rounds=50000):
 def QvQ(E, q1, q2):
     E.reset()
     reward_q1 = 0
-    reward_q2 = 0
+    agent = True
+    if q2 == 'optimal':
+        agent = False
+
     while True:
         state = E.get_state()
         q1_action = q1.get_action(state)
@@ -47,33 +64,27 @@ def QvQ(E, q1, q2):
 
         if np.sum(next_state) == 0:
             reward_q1 = 1
-            reward_q2 = -1
+            break
+
+        state2 = next_state.copy()
+
+        if agent:
+            q2_action = q2.get_action(state2)
+            next_state = E.update(q2_action)
+        else:
+            opt_action = E.get_optimal_action(state2)
+            # print(str(state) + ' ' + str(opt_action))
+            next_state = E.update(opt_action[np.random.randint(0, len(opt_action))])
+
+        if np.sum(next_state) == 0:
+            reward_q1 = -1
             break
 
         q1.update_q_table(state, q1_action, reward_q1, next_state)
 
-        state = next_state.copy()
-
-        q2_action = q2.get_action(state)
-        next_state = E.update(q2_action)
-
-        if np.sum(next_state) == 0:
-            reward_q1 = -1
-            reward_q2 = 1
-            break
-
-        q2.update_q_table(state, q2_action, reward_q2, next_state)
-
     q1.update_q_table(state, q1_action, reward_q1, next_state)
-    q2.update_q_table(state, q2_action, reward_q2, next_state)
-
-    if reward_q1 == 1:
-        q1.add_win()
-    if reward_q2 == 1:
-        q2.add_win()
 
     q1.add_points()
-    q2.add_points()
 
 
 # def trainQvsAny(option): # first argument is for percentage optimal, second for percentage random, third for percentage mal optimal
@@ -163,7 +174,23 @@ if __name__ == '__main__':
     RL2 = QAgent('Q2', discount_rate=1, learning_rate=0.45, epsilon=0.1)
     RL3 = QAgent('Q3', discount_rate=1, learning_rate=0.45, epsilon=0.1)
 
-    population_train([RL1, RL2, RL3], 2, rounds=50000)
+    population_train([RL1, RL2, RL3], 3, rounds=150000)
+
+    """
+    for episode in range(50000):
+        if episode % 1000 == 0:
+            print('Episode: ' + str(episode))
+            if episode > 40000:
+                RL1.set_epsilon(0)
+
+        E = NimEnv(3, [15, 10, 7])
+        RL1.set_env(E)
+        QvQ(E, RL1, 'optimal')
+
+    RL1.plot(RL1.get_name() + ' performance')
+    """
+
+
     # env = NimEnv(n=3, stones=[15, 10, 7], flag=0.5)
     # RL = QAgent(discount_rate=1, learning_rate=0.1, epsilon=0.1, nim_env=env)
     #
