@@ -6,13 +6,13 @@ Created on Sun Jul 24 14:30:30 2022
 @author: varun
 """
 
-def nim_sum(arr):
+def nim_sum(arr): # calculates the nim sum of all the elements in an array
     ret = 0
     for i in arr:
         ret ^= i
     return ret
 
-def optimalTable(template):
+def optimalTable(template): # returns the q table for an optimal agent given a template with the right dimensions
     ret = template.copy()   
     for s in ret:
         for a in ret[s]:
@@ -23,7 +23,7 @@ def optimalTable(template):
                 ret[s][a] = 1.0
     return ret
 
-def malOptimalTable(template):
+def malOptimalTable(template): # same thing but for the mal optimal agent
     opt = optimalTable(template)
     ret = {} 
     for key in opt:
@@ -35,9 +35,11 @@ def malOptimalTable(template):
                 ret[key][key2] = 1.0   
     return ret
 
-def randTable(template):
+def randTable(template): # same thing but for the random agent
     ret = template.copy()   
     for s in ret:
         for a in ret[s]:
             ret[s][a] = 1.0
     return ret
+
+# here is a good place to come up with new q tables if we want to experiment with them
