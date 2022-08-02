@@ -32,6 +32,7 @@ class NimEnv:
     def get_state(self):
         return self.state.copy()
 
+    """
     def step(self, action, opts=[1, 0, 0], print_=False):
         state = self.get_state()
         opt_choice = self.get_optimal_action(self.state)
@@ -69,6 +70,7 @@ class NimEnv:
             return next_state, -1, True
 
         return next_state, 0, False
+    """
 
     def get_possible_actions(self, state):
         return [[i, j] for i in range(self.n) for j in range(1, min(state[i] + 1, self.max_remove + 1))]

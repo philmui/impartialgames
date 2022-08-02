@@ -12,7 +12,9 @@ def default():
 
 
 class QAgent:
-    def __init__(self, name, discount_rate, learning_rate, epsilon):
+    def __init__(self, name, discount_rate, learning_rate, epsilon, side):
+        # SIDE: 0-Optimal, 1-Mal
+        self.side = side
         self.discount_rate = discount_rate
         self.learning_rate = learning_rate
         self.epsilon = epsilon
@@ -53,16 +55,16 @@ class QAgent:
     def update_q_table(self, state, action, reward, next_state, flagged=False):
         q_predict = self.q_table[str(state)][str(action)]
 
-        multipler = 0.2 if flagged else 1
+        beta = 0.2 if flagged else 1
 
         if np.sum(next_state) == 0:
             if reward < 0:
                 self.wins.append(0)
             else:
                 self.wins.append(1)
-            q_target = reward
+            q_target = beta * reward
         else:
-            q_target = reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
+            q_target = beta * reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
 
         self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * q_predict + self.learning_rate * q_target
 
@@ -71,6 +73,9 @@ class QAgent:
 
     def set_env(self, env):
         self.nim_env = env
+
+    def get_side(self):
+        return self.side
 
     def get_name(self):
         return self.name
