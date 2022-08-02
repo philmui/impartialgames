@@ -12,11 +12,11 @@ from matplotlib import pyplot as plt
 
 LEARNING_RATE = 0.45
 
-def train2Players(game, agent1, agent2, episodes, thresh_stop_exploring):
+def train2Players(game, agent1, agent2, episodes, thresh_start_exploiting, thresh_stop_exploring):
     for ep in range(0, episodes):        
-        if agent1.isQ():    
+        if agent1.isQ() and ep + 1 >= thresh_start_exploiting:    
             agent1.setEpsilon(0.99 * agent1.getEpsilon())
-        if agent2.isQ():
+        if agent2.isQ() and ep + 1 >= thresh_start_exploiting:
             agent2.setEpsilon(0.99 * agent2.getEpsilon())
         
         if ep + 1 == thresh_stop_exploring:
@@ -61,16 +61,23 @@ def getWinsPlot(wins, games_per_pt):
     plt.plot(avgs)
     plt.show()
 
-game = nim_v2.nim(10, 3)
+game = nim_v2.nim(3, 3)
 
 q = nim_v2.q_agent(game, LEARNING_RATE)
+q2 = nim_v2.q_agent(game, LEARNING_RATE)
 
 opt = nim_v2.opp_agent(game)
 opt.setTable(opponentTables.optimalTable(game.getTemplate()))
 
-train2Players(game, q, opt, 100000, 50000)
+rand = nim_v2.opp_agent(game)
+rand.setTable(opponentTables.randTable(game.getTemplate()))
 
-getStratPlot(q.getStratError(), 1000)
-getWinsPlot(q.getWins(), 1000)
+#train2Players(game, q, opt, 500, 0, 0)
+#train2Players(game, q, rand, 500, 0, 0)
+
+#getStratPlot(q.getStratError(), 1000)
+#getWinsPlot(q.getWins(), 1000)
+#getStratPlot(q2.getStratError(), 1000)
+#getWinsPlot(q2.getWins(), 1000)
 
 
