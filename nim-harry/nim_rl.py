@@ -103,8 +103,7 @@ class QAgent:
             self.accuracy_y.append(np.mean(self.accuracy))
             self.accuracy = []
 
-    def plot(self, title):
-        # print(self.wins)
+    def plot(self, title, name):
         plt.plot(self.accuracy_x, self.accuracy_y, label='Accuracy Rate', color='red')
         plt.plot(self.wins_x, self.wins_y, label='Win Rate', color='blue')
         plt.legend()

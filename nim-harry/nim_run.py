@@ -26,7 +26,52 @@ else:
 """
 
 
-def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], discern_rate=0):
+def youtube_train(people, piles, rounds=50000, recommendation=[0, 1.0], discern_rate=0):
+    recommendation[1] += recommendation[0]
+
+    for r in range(rounds):
+        if r % 1000 == 0:
+            print('Round: ', r)
+            if r + 20000 >= rounds:
+                for q in people:
+                    q.set_epsilon(0)
+
+        trained = 0
+
+        rand = np.random.rand()
+
+        p1 = np.random.randint(0, len(people))
+        q1 = people[p1]
+        side = q1.get_side()
+        env = NimEnv(len(piles), piles)
+        q1.set_env(env)
+
+        possible = []
+
+        if rand < recommendation[0]:
+            possible.append('optimal' if side == 0 else 'mal')
+            for q in people:
+                if q.get_side() == side and q.get_name() != q1.get_name():
+                    possible.append(q)
+        elif rand < recommendation[1]:
+            possible.append('optimal' if side == 1 else 'mal')
+            for q in people:
+                if q.get_side() != side and q.get_name() != q1.get_name():
+                    possible.append(q)
+
+        q2 = possible[np.random.randint(len(possible))]
+        if q2 != 'optimal' and q2 != 'mal':
+            q2.set_env(env)
+
+        QvQ(env, q1, q2)
+
+    for q in people:
+        q.plot(q.get_name() + ' performance with ' + str(int(recommendation[0] * 100.0)) + '% suggesting biased content',
+                     q.get_name() + '_' + str(int(recommendation[0] * 100.0)) + '.png')
+
+
+
+def population_train(people, piles, rounds=50000, probability=[0, 0, 1], discern_rate=0):
     for i in range(1, len(probability)):
         probability[i] = probability[i - 1] + probability[i]
 
@@ -36,14 +81,12 @@ def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], disc
         if r % 1000 == 0:
             print('Round: ', r)
             if r + 20000 >= rounds:
-                RL1.set_epsilon(0)
-                RL2.set_epsilon(0)
-                RL3.set_epsilon(0)
+                for q in people:
+                    q.set_epsilon(0)
 
         trained = 0
 
         rand = np.random.rand()
-        piles = [3, 5, 7]
 
         p1 = np.random.randint(0, len(people))
         q1 = people[p1]
@@ -153,7 +196,11 @@ if __name__ == '__main__':
     RL3 = QAgent('Q3', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=0)
     RL4 = QAgent('Q4', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=1)
 
-    population_train([RL1, RL2, RL3], 3, rounds=60000, probability=[0, 0.5, 0.5])
+    people = [RL1, RL2, RL3, RL4]
+    youtube_train(people, [3, 5, 7], rounds=75000, recommendation=[0.99, 0.01])
+    # population_train([RL1, RL2, RL3], [3, 5, 7], rounds=60000, probability=[0, 0.5, 0.5])
 
+    """
     while True:
         play(RL1, [3, 5, 7])
+    """
