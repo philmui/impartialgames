@@ -90,7 +90,7 @@ def getPlot(wins, strat_error, games_per_pt, plot_title):
     wins_plot = wins_df.rolling(window=games_per_pt).mean()
     
     plt.plot(strat_plot, label='Strategy Rate', color='red')
-    plt.plot(wins_plot, label='Win Rate', color = 'blue')
+    plt.plot(wins_plot, label='Win Rate', color='blue')
     
     plt.xlim([0, len(wins)])
     plt.ylim([-0.1, 1.1])
@@ -102,7 +102,7 @@ def getPlot(wins, strat_error, games_per_pt, plot_title):
     
     plt.show()
 
-game = nim_v2.nim(3, 3) # a game starting with three piles and three stones in each pile
+game = nim_v2.nim(5, 5) # a game starting with three piles and three stones in each pile
 
 q = nim_v2.q_agent(game, LEARNING_RATE) # a q agent which can play in "game" and has learning rate 0.45
 q2 = nim_v2.q_agent(game, LEARNING_RATE) # another such q agent
@@ -119,22 +119,27 @@ rand.setTable(opponentTables.randTable(game.getTemplate()))
 mal = nim_v2.opp_agent(game)
 mal.setTable(opponentTables.malOptimalTable(game.getTemplate()))
 
-# the q agent(s) stop(s) exploring 100% of the time after 20000 games 
-# the q agent(s) start(s) exploiting 100% of the time after 60000 games
-train2Players(game, q, opt, 100000, 20000, 60000) # q plays opt in game 100000 times
-q.setTable(game.getTemplate()) # resets q's q table
-train2Players(game, q, q2, 100000, 20000, 60000) # q plays q2 in game 100000
+train2Players(game, q, opt, 200000, 20000, 60000)
+getPlot(q.getWins(), q.getStratError(), 1000, "q vs optimal agent over time, " + str(game.getPiles()) + " piles, " + str(game.getInitialStonesPerPile()) + " initial stones")
 
 q.setTable(game.getTemplate()) # resets q's q table
 
-# q plays in environment with 20% random agents, 50% optimal agents, 30% mal-optimal agents 
-# the last three parameters are the same from train2Players
-trainOneQ(game, q, rand, opt, mal, 0.2, 0.5, 0.3, 100000, 20000, 60000)
-
-# graphing q's strategy rate and win rate over time
-getPlot(q.getWins(), q.getStratError(), 1000, "q over time")
-
-# graphing q2's strategy rate and win rate over time
-getPlot(q2.getWins(), q2.getStratError(), 1000, "q2 over time")
+# # the q agent(s) stop(s) exploring 100% of the time after 20000 games
+# # the q agent(s) start(s) exploiting 100% of the time after 60000 games
+# train2Players(game, q, opt, 100000, 20000, 60000) # q plays opt in game 100000 times
+# q.setTable(game.getTemplate()) # resets q's q table
+# train2Players(game, q, q2, 100000, 20000, 60000) # q plays q2 in game 100000
+#
+# q.setTable(game.getTemplate()) # resets q's q table
+#
+# # q plays in environment with 20% random agents, 50% optimal agents, 30% mal-optimal agents
+# # the last three parameters are the same from train2Players
+# trainOneQ(game, q, rand, opt, mal, 0.2, 0.5, 0.3, 100000, 20000, 60000)
+#
+# # graphing q's strategy rate and win rate over time
+# getPlot(q.getWins(), q.getStratError(), 1000, "q over time")
+#
+# # graphing q2's strategy rate and win rate over time
+# getPlot(q2.getWins(), q2.getStratError(), 1000, "q2 over time")
 
 

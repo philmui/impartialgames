@@ -82,6 +82,13 @@ class nim: # nim environment (controls the mechanics of the game)
         self.state = [self.m] * self.n
         self.player = 1
 
+    def getPiles(self):  # returns number of piles
+        return self.n
+
+    def getInitialStonesPerPile(self): # returns initial stone per pile
+        return self.m
+
+
 class q_agent: # q agent
     def __init__(self, game, learning_rate): # initializes a q agent which can play in a specified game
         self.game = game
