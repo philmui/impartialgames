@@ -167,6 +167,10 @@ class q_agent: # q agent
 
 class opp_agent: # all agents that do not learn, similar to the q agent but the q table does not change
     
+    def __init__(self, game): # initializes an opponent agent which plays in a specified game
+        self.game = game    
+        self.qtable = self.game.getTemplate().copy()
+
     def setTable(self, qtable): # sets the agent's q table
         self.qtable = qtable
     

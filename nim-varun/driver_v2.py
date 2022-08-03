@@ -10,6 +10,7 @@ import nim_v2
 import opponentTables
 from matplotlib import pyplot as plt
 import random
+import pandas as pd
 
 LEARNING_RATE = 0.45 # optimal learning rate for q agents
 
@@ -79,6 +80,28 @@ def getWinsPlot(wins, games_per_pt):
     plt.plot(avgs)
     plt.show()
 
+def getPlot(wins, strat_error, games_per_pt, plot_title):
+    k = float(len(strat_error)/len(wins))
+    
+    strat_error_df = pd.DataFrame(strat_error)
+    wins_df = pd.DataFrame(wins)
+    
+    strat_plot = strat_error_df.rolling(window=int(games_per_pt * k)).mean()
+    wins_plot = wins_df.rolling(window=games_per_pt).mean()
+    
+    plt.plot(strat_plot, label='Strategy Rate', color='red')
+    plt.plot(wins_plot, label='Win Rate', color = 'blue')
+    
+    plt.xlim([0, len(wins)])
+    plt.ylim([-0.1, 1.1])
+    
+    plt.title(plot_title) 
+    plt.xlabel("Episodes")
+    
+    plt.legend(loc='upper left')
+    
+    plt.show()
+
 game = nim_v2.nim(3, 3) # a game starting with three piles and three stones in each pile
 
 q = nim_v2.q_agent(game, LEARNING_RATE) # a q agent which can play in "game" and has learning rate 0.45
@@ -109,11 +132,9 @@ q.setTable(game.getTemplate()) # resets q's q table
 trainOneQ(game, q, rand, opt, mal, 0.2, 0.5, 0.3, 100000, 20000, 60000)
 
 # graphing q's strategy rate and win rate over time
-getStratPlot(q.getStratError(), 1000) 
-getWinsPlot(q.getWins(), 1000)
+getPlot(q.getWins(), q.getStratError(), 1000, "q over time")
 
 # graphing q2's strategy rate and win rate over time
-getStratPlot(q2.getStratError(), 1000)
-getWinsPlot(q2.getWins(), 1000)
+getPlot(q2.getWins(), q2.getStratError(), 1000, "q2 over time")
 
 
