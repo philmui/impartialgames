@@ -1,6 +1,7 @@
-import numpy as np
 from nim_env import NimEnv
 from nim_rl import QAgent
+import random
+import numpy as np
 
 # 1 - Optimal, 2 - Mal, 3 - Population
 # 4 - Random
@@ -73,12 +74,9 @@ def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], disc
         q.plot(q.get_name() + ' performance')
 
 
-def QvQ(env, q1, q2):
+def QvQ(env, q1, opp):
     env.reset()
     reward_q1 = 0
-    agent = True
-    if q2 == 'optimal' or q2 == 'mal':
-        agent = False
 
     while True:
         state = env.get_state()
@@ -91,15 +89,16 @@ def QvQ(env, q1, q2):
 
         state2 = next_state.copy()
 
-        if agent:
-            action = q2.get_action(state2)
-        elif q2 == 'optimal':
+        if opp == 'random':
+            actions = env.get_possible_actions(state2)
+        elif opp == 'optimal':
             actions = env.get_optimal_action(state2)
-            action = actions[np.random.randint(len(actions))]
-        else:
+        elif opp == 'mal':
             actions = env.get_mal_random_action(state2)
-            action = actions[np.random.randint(len(actions))]
+        else:
+            raise Exception("Nim opponent strategy is not known: " + opp)
 
+        action = random.choice(actions)
         next_state = env.update(action)
 
         if np.sum(next_state) == 0:
@@ -146,14 +145,42 @@ def play(q, pile):
             print('Game Over Computer Wins')
             break
 
+# probability indexes:
+# 0: random
+# 1: optimal
+# 2: mal-optimal
+
+def train_qagent(q_agent, piles, rounds=50000, probability=[0, 0, 1]):
+    for i in range(1, len(probability)):
+        probability[i] = probability[i - 1] + probability[i]
+
+    print(probability)
+    for r in range(rounds+1):
+        if r % 5000 == 0:
+            print('Round: ', r)
+
+        env = NimEnv(len(piles), piles)
+        q_agent.set_env(env)
+
+        rand = np.random.rand()
+        if rand <= probability[0]:
+            QvQ(env, q_agent, 'random')
+        elif rand <= probability[1]:
+            QvQ(env, q_agent, 'optimal')
+        elif rand <= probability[2]:
+            QvQ(env, q_agent, 'mal')
 
 if __name__ == '__main__':
-    RL1 = QAgent('Q1', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=0)
-    RL2 = QAgent('Q2', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=1)
-    RL3 = QAgent('Q3', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=0)
-    RL4 = QAgent('Q4', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=1)
+    RL1 = QAgent('Q1', discount_rate=0.9, learning_rate=0.5, epsilon=0.1, side=0)
+    RL2 = QAgent('Q2', discount_rate=0.9, learning_rate=0.5, epsilon=0.1, side=0)
+    RL3 = QAgent('Q3', discount_rate=0.9, learning_rate=0.5, epsilon=0.1, side=0)
 
-    population_train([RL1, RL2, RL3], 3, rounds=60000, probability=[0, 0.5, 0.5])
+    piles = [3, 4, 5]
+    train_qagent(RL1, piles, rounds=10000, probability=[1., 0., 0.])
+    RL1.plot("Q-Learner against random agents: " + str(piles))
 
-    while True:
-        play(RL1, [3, 5, 7])
+    train_qagent(RL2, piles, rounds=10000, probability=[0., 1., 0.])
+    RL2.plot("Q-Learner against optimal agents: " + str(piles))
+    
+    train_qagent(RL3, piles, rounds=10000, probability=[0., 0., 1.])
+    RL3.plot("Q-Learner against mal-optimal agents: " + str(piles))

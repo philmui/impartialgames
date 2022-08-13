@@ -67,7 +67,7 @@ class QAgent:
             # q_target = beta * reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
             q_target = beta * reward \
                        + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values())) \
-                       - q_predict
+                       #- q_predict
 
 
         self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * q_predict + self.learning_rate * q_target
@@ -111,6 +111,7 @@ class QAgent:
         # print(self.wins)
         plt.plot(self.accuracy_x, self.accuracy_y, label='Accuracy Rate', color='red')
         plt.plot(self.wins_x, self.wins_y, label='Win Rate', color='blue')
+        plt.ylim(-0.1, 1.1)
         plt.legend()
         plt.title(title)
         plt.show()
