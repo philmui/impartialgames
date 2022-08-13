@@ -65,9 +65,17 @@ class QAgent:
             q_target = beta * reward
         else:
             # q_target = beta * reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
+            q_next_state = (0 if len(self.q_table[str(next_state)]) == 0 \
+                              else max(self.q_table[str(next_state)].values()))
+                              
             q_target = beta * reward \
+<<<<<<< HEAD
                        + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values())) \
                        #- q_predict
+=======
+                       + self.discount_rate * q_next_state \
+                       - q_predict
+>>>>>>> 5861dac91035118a7f63eab8aaa37995cfca76b4
 
 
         self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * q_predict + self.learning_rate * q_target
