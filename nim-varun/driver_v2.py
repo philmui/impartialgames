@@ -147,7 +147,7 @@ getPlot(q.getWins(), q.getStratError(), 1000, "q over time", True, "")
 # graphing q2's strategy rate and win rate over time
 getPlot(q2.getWins(), q2.getStratError(), 1000, "q2 over time", True, "")
 
-# partisanship code
+# polarization code
 '''
 colors = ['red', 'orange', 'yellow', 'green', 'blue', 'cyan', 'magenta', 'black']
 
