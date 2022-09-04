@@ -1,6 +1,8 @@
 import numpy as np
 from nim_env import NimEnv
 from nim_rl import QAgent
+from matplotlib import pyplot as plt
+from matplotlib.pyplot import figure
 
 # 1 - Optimal, 2 - Mal, 3 - Population
 # 4 - Random
@@ -25,8 +27,48 @@ else:
 }
 """
 
+def youtube_train(people, piles, rounds=50000, recommendation=[0, 1.0], discern_rate=0):
+    recommendation[1] += recommendation[0]
 
-def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], discern_rate=0):
+    for r in range(rounds):
+        if r % 1000 == 0:
+            print('Round: ', r)
+            if r + 50000 == rounds:
+                for q in people:
+                    q.set_epsilon(0)
+
+        rand = np.random.rand()
+
+        p1 = np.random.randint(0, len(people))
+        q1 = people[p1]
+        side = q1.get_side()
+        env = NimEnv(len(piles), piles)
+        q1.set_env(env)
+
+        possible = None
+
+        if r < rounds // 2:
+            possible = 'optimal' if side == 0 else 'mal'
+        else:
+            if rand < recommendation[0]:
+                possible = 'optimal' if side == 0 else 'mal'
+            elif rand < recommendation[1]:
+                possible = 'optimal' if side == 1 else 'mal'
+
+        QvQ(env, q1, possible)
+
+    for q in people:
+        q.plot(q.get_name() + ' performance with ' + str(int(recommendation[0] * 100.0)) + '% suggesting biased content', 'YouTube Plots',
+                     q.get_name() + '_' + str(int(recommendation[0] * 100.0)) + '.png', 13)
+
+
+
+"""
+First parameter is Optimal
+Second parameter is Mal
+Third parameter is Population
+"""
+def population_train(people, piles, rounds=50000, probability=[0, 0, 1], discern_rate=0):
     for i in range(1, len(probability)):
         probability[i] = probability[i - 1] + probability[i]
 
@@ -38,12 +80,10 @@ def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], disc
             if r + 20000 >= rounds:
                 RL1.set_epsilon(0)
                 RL2.set_epsilon(0)
-                RL3.set_epsilon(0)
 
         trained = 0
 
         rand = np.random.rand()
-        piles = [3, 5, 7]
 
         p1 = np.random.randint(0, len(people))
         q1 = people[p1]
@@ -51,11 +91,11 @@ def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], disc
         q1.set_env(env)
 
         if rand < probability[0]:
-            QvQ(env, q1, 'optimal')
+            QvQ(env, q1, 'optimal', discern_rate)
             continue
 
         if rand < probability[1]:
-            QvQ(env, q1, 'mal')
+            QvQ(env, q1, 'mal', discern_rate)
             continue
 
         while trained < len(people) // 2:
@@ -66,19 +106,31 @@ def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], disc
             q2 = people[p2]
             q2.set_env(env)
 
-            QvQ(env, q1, q2)
+            QvQ(env, q1, q2, discern_rate)
             trained += 2
 
     for q in people:
-        q.plot(q.get_name() + ' performance')
+        q.plot(
+            q.get_name() + ' performance with ' + str(probability) + ' population and discern rate '
+            + str(int(discern_rate*100)) + '%', 'Discerning Plots',
+            q.get_name() + '_' + str(int(discern_rate * 100.0)) + '.png', 8)
 
 
-def QvQ(env, q1, q2):
+def QvQ(env, q1, q2, discern=0):
     env.reset()
     reward_q1 = 0
     agent = True
+    flagged = False
     if q2 == 'optimal' or q2 == 'mal':
+        q2_lean = 1 if q2 == 'optimal' else -1
         agent = False
+
+    # random decimal between 0 and 1
+    rand = np.random.rand()
+
+    if rand < discern and q2_lean == -1:
+        # print(str(q2_lean) + ' ' + str(rand))
+        flagged = True
 
     while True:
         state = env.get_state()
@@ -106,7 +158,7 @@ def QvQ(env, q1, q2):
             reward_q1 = -1
             break
 
-        q1.update_q_table(state, q1_action, reward_q1, next_state)
+        q1.update_q_table(state, q1_action, reward_q1, next_state, flagged)
 
     ### HERE
     # Reward < 0, q1 loses, reward > 0, q1 wins
@@ -114,7 +166,7 @@ def QvQ(env, q1, q2):
     # random float between 0 and 1
     # if random < dicerning rate, flagged
 
-    q1.update_q_table(state, q1_action, reward_q1, next_state)
+    q1.update_q_table(state, q1_action, reward_q1, next_state, flagged)
 
     q1.add_points()
 
@@ -148,12 +200,18 @@ def play(q, pile):
 
 
 if __name__ == '__main__':
+    """
+    tests = [[1, 0], [0.99, 0.01], [0.95, 0.05], [0.90, 0.10], [0.50, 0.50], [0.10, 0.90], [0.05, 0.95], [0.01, 0.99], [0, 1]]
+
+    for i in range(len(tests)):
+        RL1 = QAgent('Q1', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=0)
+        RL2 = QAgent('Q2', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=1)
+
+        people = [RL1, RL2]
+        youtube_train(people, [1, 3, 5], rounds=200000, recommendation=tests[i])
+    """
+
     RL1 = QAgent('Q1', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=0)
     RL2 = QAgent('Q2', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=1)
-    RL3 = QAgent('Q3', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=0)
-    RL4 = QAgent('Q4', discount_rate=1, learning_rate=0.45, epsilon=0.1, side=1)
-
-    population_train([RL1, RL2, RL3], 3, rounds=60000, probability=[0, 0.5, 0.5])
-
-    while True:
-        play(RL1, [3, 5, 7])
+    population = [RL1, RL2]
+    population_train(population, [1, 3, 5], rounds=50000, probability=[0.01, 0.99, 0], discern_rate=1)

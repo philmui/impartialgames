@@ -5,6 +5,7 @@ from collections import defaultdict
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 
 
 def default():
@@ -55,7 +56,7 @@ class QAgent:
     def update_q_table(self, state, action, reward, next_state, flagged=False):
         q_predict = self.q_table[str(state)][str(action)]
 
-        beta = 0.2 if flagged else 1
+        beta = 0.1 if flagged else 1
 
         if np.sum(next_state) == 0:
             if reward < 0:
@@ -64,7 +65,8 @@ class QAgent:
                 self.wins.append(1)
             q_target = beta * reward
         else:
-            q_target = beta * reward + self.discount_rate * (0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
+            q_target = beta * reward + self.discount_rate * (
+                0 if len(self.q_table[str(next_state)]) == 0 else max(self.q_table[str(next_state)].values()))
 
         self.q_table[str(state)][str(action)] = (1 - self.learning_rate) * q_predict + self.learning_rate * q_target
 
@@ -103,10 +105,15 @@ class QAgent:
             self.accuracy_y.append(np.mean(self.accuracy))
             self.accuracy = []
 
-    def plot(self, title):
-        # print(self.wins)
+    def get_accuracy(self):
+        return self.accuracy_y[-1]
+
+    def plot(self, title, folder, name, version):
+        figure(figsize=(8, 6), dpi=360)
         plt.plot(self.accuracy_x, self.accuracy_y, label='Accuracy Rate', color='red')
         plt.plot(self.wins_x, self.wins_y, label='Win Rate', color='blue')
+        plt.ylim(-0.1, 1.1)
         plt.legend()
         plt.title(title)
-        plt.show()
+        plt.savefig('Plots/' + folder + '/v' + str(version) + '/' + name)
+        plt.close()
