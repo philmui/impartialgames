@@ -70,8 +70,8 @@ def population_train(people, num_pile, rounds=50000, probability=[0, 0, 1], disc
             QvQ(env, q1, q2)
             trained += 2
 
-    for q in people:
-        q.plot(q.get_name() + ' performance')
+    # for q in people:
+    #    q.plot(q.get_name() + ' performance')
 
 
 def QvQ(env, q1, oppo):
@@ -122,34 +122,6 @@ def QvQ(env, q1, oppo):
 
     q1.add_points()
 
-
-def play(q, pile):
-    env = NimEnv(len(pile), pile)
-    env.reset()
-    while True:
-        print('Current Pile: ' + str(env.get_state()))
-
-        pile = input('Enter Pile: ')
-        amt = input('Enter Amount: ')
-
-        env.update([int(pile) - 1, int(amt)])
-
-        if np.sum(env.get_state()) == 0:
-            print('Game Over You Win!')
-            break
-
-        print('Current Pile: ' + str(env.get_state()))
-
-        action = q.get_action(env.get_state(), play=True)
-
-        print('Computer chooses from pile ' + str(action[0] + 1) + ' with amount ' + str(action[1]))
-
-        env.update(action)
-
-        if np.sum(env.get_state()) == 0:
-            print('Game Over Computer Wins')
-            break
-
 #
 # probabilities:
 #   0: random
@@ -184,10 +156,8 @@ if __name__ == '__main__':
     piles = [3, 5, 7]
     train_qlearner(RL1, piles, rounds=10000, probability=[1.0, 0.00, 0.0])
     RL1.plot(RL1.get_name() + ': against random actions: ' + str(piles))
-    train_qlearner(RL2, piles, rounds=10000, probability=[0, 1.00, 0.0])
-    RL2.plot(RL2.get_name() + ': against optimal agents: ' + str(piles))
-    train_qlearner(RL3, piles, rounds=10000, probability=[0, 0.00, 1.0])
-    RL3.plot(RL3.get_name() + ': against mal-optimal agents: ' + str(piles))
 
-    # while True:
-    #     play(RL1, piles)
+    # train_qlearner(RL2, piles, rounds=10000, probability=[0, 1.00, 0.0])
+    # RL2.plot(RL2.get_name() + ': against optimal agents: ' + str(piles))
+    # train_qlearner(RL3, piles, rounds=10000, probability=[0, 0.00, 1.0])
+    # RL3.plot(RL3.get_name() + ': against mal-optimal agents: ' + str(piles))

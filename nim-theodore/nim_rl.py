@@ -127,9 +127,8 @@ class QAgent:
     def plot(self, title):
         # print(self.wins)
         plt.plot(self.wins_x, self.wins_y, label='Win Rate', color='green')
-        plt.plot(self.accuracy_x, self.accuracy_y, label='Accuracy Rate', color='blue')
+        plt.plot(self.accuracy_x, self.accuracy_y, label='Optimal Moves', color='blue')
         plt.ylim(-0.1, 1.1)
-        figure(figsize=(8, 6), dpi=360)
         plt.legend()
         plt.title(title)
         plt.show()
