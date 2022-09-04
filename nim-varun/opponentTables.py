@@ -6,6 +6,8 @@ Created on Sun Jul 24 14:30:30 2022
 @author: varun
 """
 
+import random
+
 def nim_sum(arr): # calculates the nim sum of all the elements in an array
     ret = 0
     for i in arr:
@@ -40,6 +42,13 @@ def randTable(template): # same thing but for the random agent
     for s in ret:
         for a in ret[s]:
             ret[s][a] = 1.0
+    return ret
+
+def randValuesTable(template): # q table with all random values instead of zeroes like the default
+    ret = template.copy()   
+    for s in ret:
+        for a in ret[s]:
+            ret[s][a] = random.random()
     return ret
 
 # here is a good place to come up with new q tables if we want to experiment with them
