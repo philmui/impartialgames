@@ -80,7 +80,7 @@ class DQN:
             poss_actions = np.array(self.env.get_possible_actions(state))
             return np.random.choice(poss_actions)
 
-        pred = self.model.predict(state)[0]
+        pred = self.model.predict(state, verbose=0)[0]
         poss_actions = self.env.get_possible_actions(state)
 
         mx = max(pred[poss_actions])
