@@ -46,11 +46,11 @@ class DQN:
 
         for sample in samples:
             state, action, reward, new_state, done = sample
-            target = self.target_model.predict(state)
+            target = self.target_model.predict(state, verbose=0)
             if done:
                 target[0][action] = reward
             else:
-                pred = self.target_model.predict(new_state)[0]
+                pred = self.target_model.predict(new_state, verbose=0)[0]
                 poss_actions = self.env.get_possible_actions(new_state)
 
                 Q_future = max(pred[poss_actions])
