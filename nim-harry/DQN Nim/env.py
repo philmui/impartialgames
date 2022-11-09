@@ -49,18 +49,27 @@ class Nim:
             self.game_over = True
 
     def step(self, action):
+        xor_sum = self.get_xor_sum(self.state)
         self.update(action)
+        xor_sum_final = self.get_xor_sum(self.state)
 
         if self.game_over:
-            return np.array(self.state), 10, True
+            return np.array(self.state), 1, True
 
         opt_act = random.choice(self.get_optimal_action(np.array(self.state)))
         self.update(opt_act)
 
         if self.game_over:
-            return np.array(self.state), -10, True
+            return np.array(self.state), -1, True
 
-        return np.array(self.state), -2 if self.get_xor_sum(self.state) == 0 else 2, False
+        reward = 0
+        if xor_sum != 0:
+            if xor_sum_final == 0:
+                reward = 1
+            else:
+                reward = -1
+
+        return np.array(self.state), reward, False
 
     def get_xor_sum(self, state):
         xor = 0

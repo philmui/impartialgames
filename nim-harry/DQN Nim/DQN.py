@@ -10,13 +10,13 @@ import numpy as np
 class DQN:
     def __init__(self, env):
         self.env = env
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=100000)
 
-        self.gamma = 0.99
+        self.gamma = 1
         self.epsilon = 1.0
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
-        self.learning_rate = 0.45
+        self.learning_rate = 0.01
         self.tau = 0.05
 
         self.model = self.create_model()
@@ -26,11 +26,12 @@ class DQN:
         model = Sequential()
 
         state_shape = np.array(self.env.get_state()).shape
-        model.add(Dense(24, input_dim=state_shape[0], activation='relu'))
-        model.add(Dense(48, activation='relu'))
-        model.add(Dense(24, activation='relu'))
+        model.add(Dense(100, input_dim=state_shape[0], activation='relu'))
+        model.add(Dense(100, activation='relu'))
         model.add(Dense(self.env.action_space))
         model.compile(loss="mse", optimizer=Adam(learning_rate=self.learning_rate))
+
+        print(model.summary())
 
         return model
 
@@ -38,7 +39,7 @@ class DQN:
         self.memory.append([state, action, reward, new_state, done])
 
     def replay(self):
-        batch_size = 32
+        batch_size = 128
         if len(self.memory) < batch_size:
             return
 

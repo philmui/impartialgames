@@ -7,7 +7,7 @@ if __name__ == "__main__":
     agent = DQN(env=env)
 
     eps_hist = []
-    for i in range(1000):
+    for i in range(750):
         state = env.reset()
 
         score = 0
@@ -20,6 +20,7 @@ if __name__ == "__main__":
 
             agent.remember(state.reshape(1, len(state)), action, reward, new_state.reshape(1, len(state)), done)
             agent.replay()
+            agent.target_train()
 
             state = new_state.copy()
             if done:
@@ -28,13 +29,11 @@ if __name__ == "__main__":
         eps_hist.append(score)
         print("Episode: ", i, "Score: ", score, "Average score: ", np.mean(eps_hist[-100:]), "Epsilon: ", agent.get_epsilon())
 
-        if i % 10 == 0:
-            agent.target_train()
-
     print("Done")
 
     state = env.reset()
     while True:
+        state = env.reset()
         while True:
             print(state)
             action = agent.act(state.reshape(1, len(state)), play=True)
