@@ -7,7 +7,7 @@ if __name__ == "__main__":
     agent = DQN(env=env)
 
     eps_hist = []
-    for i in range(750):
+    for i in range(500):
         state = env.reset()
 
         score = 0
@@ -25,6 +25,9 @@ if __name__ == "__main__":
             state = new_state.copy()
             if done:
                 break
+
+        if i != 0 and i % 50 == 0:
+            agent.save("nim_model_ " + str(i) + ".h5")
 
         eps_hist.append(score)
         print("Episode: ", i, "Score: ", score, "Average score: ", np.mean(eps_hist[-100:]), "Epsilon: ", agent.get_epsilon())

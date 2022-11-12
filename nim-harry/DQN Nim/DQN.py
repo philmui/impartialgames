@@ -17,7 +17,6 @@ class DQN:
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.01
-        self.tau = 0.05
 
         self.model = self.create_model()
         self.target_model = self.create_model()
@@ -68,7 +67,7 @@ class DQN:
         self.target_model.set_weights(target_weights)
 
     def save(self, name):
-        self.model.save(name)
+        self.model.save("Models/" + name)
 
     def load(self, name):
         self.model = load_model(name)
