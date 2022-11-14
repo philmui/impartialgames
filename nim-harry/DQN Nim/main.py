@@ -13,8 +13,21 @@ if __name__ == "__main__":
         score = 0
 
         while True:
+            best_actions = env.get_optimal_action(state)
+
             action = agent.act(state.reshape(1, len(state)))
             new_state, reward, done = env.step(action)
+
+            if action in best_actions:
+                agent.update_accuracy(1)
+            else:
+                agent.update_accuracy(0)
+
+            if done:
+                if reward > 0:
+                    agent.update_win_rate(1)
+                else:
+                    agent.update_win_rate(0)
 
             score += reward
 
